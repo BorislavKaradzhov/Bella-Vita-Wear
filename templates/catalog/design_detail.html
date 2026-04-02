@@ -7,7 +7,13 @@
     <div class="row mb-5">
         <!-- Design Image -->
         <div class="col-md-6">
-            <img src="{{ design.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ design.title }}">
+            {% if design.image and design.image.name %}
+                <img src="{{ design.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ design.title }}">
+            {% else %}
+                <div class="bg-light text-center py-5 rounded h-100 d-flex align-items-center justify-content-center">
+                    <span class="text-muted">No Image Available</span>
+                </div>
+            {% endif %}
         </div>
         
         <!-- Design Configuration & Add to Cart -->
@@ -16,7 +22,7 @@
             <p class="text-muted">Category: {{ design.category.name }}</p>
             <p class="lead">{{ design.description }}</p>
 
-            <form method="POST" action="#">
+            <form method="POST" action="{% url 'add-to-cart' design.id %}">
                 {% csrf_token %}
                 <!-- Mockup of selection fields (to be populated with forms.py later) -->
                 <div class="mb-3">
@@ -59,7 +65,7 @@
                     <img src="{{ similar.image.url }}" class="card-img-top" alt="{{ similar.title }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ similar.title }}</h5>
-                        <a href="{% url 'design-detail' similar.id %}" class="btn btn-sm btn-secondary">View Design</a>
+                        <a href="{{ similar.get_absolute_url }}" class="btn btn-sm btn-secondary">View Design</a>
                     </div>
                 </div>
             </div>
