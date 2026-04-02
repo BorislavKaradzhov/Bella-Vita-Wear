@@ -1,0 +1,93 @@
+{#{% extends 'base.html' %}#}
+{##}
+{#{% block title %}Order History | Bella Vita Wear{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<div class="container mt-4">#}
+{#    <h2 class="mb-4">My Orders</h2>#}
+{#    {% if orders %}#}
+{#        <div class="list-group shadow-sm">#}
+{#            {% for order in orders %}#}
+{#                <a href="{% url 'order-detail' order.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">#}
+{#                    <div>#}
+{#                        <h5 class="mb-1">Order #{{ order.id }}</h5>#}
+{#                        <small class="text-muted">Placed on: {{ order.created_at|date:"M d, Y" }}</small>#}
+{#                    </div>#}
+{#                    <div class="text-end">#}
+{#                        <span class="badge {% if order.status == 'Fulfilled' %}bg-success{% elif order.status == 'Cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill fs-6 mb-1">#}
+{#                            {{ order.status }}#}
+{#                        </span>#}
+{#                        <div class="fw-bold">${{ order.total_price }}</div>#}
+{#                    </div>#}
+{#                </a>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    {% else %}#}
+{#        <div class="alert alert-secondary text-center">#}
+{#            You haven't placed any orders yet.#}
+{#        </div>#}
+{#    {% endif %}#}
+{#</div>#}
+{#{% endblock %}#}
+
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Order History</h2>
+        <span class="badge bg-secondary">{{ orders.count }} Orders Total</span>
+    </div>
+
+    {% if orders %}
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" class="ps-4">Order ID</th>
+                    <th scope="col">Date Placed</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end pe-4">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="ps-4 fw-bold">#{{ order.id }}</td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="text-muted">{{ order.items.count }} items</span>
+                    </td>
+                    <td><span class="fw-bold text-dark">${{ order.total_price }}</span></td>
+                    <td>
+                        {% if order.status == 'Fulfilled' %}
+                            <span class="badge rounded-pill bg-success">Fulfilled</span>
+                        {% elif order.status == 'Cancelled' %}
+                            <span class="badge rounded-pill bg-danger">Cancelled</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary">View Details</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card text-center p-5 shadow-sm">
+        <div class="card-body">
+            <h4 class="text-muted">You haven't placed any orders yet.</h4>
+            <p>Our latest collection is waiting for you!</p>
+            <a href="{% url 'design-list' %}" class="btn btn-primary">Shop Now</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

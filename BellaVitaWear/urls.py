@@ -15,8 +15,25 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # We set the catalog as the root URL so users see designs immediately
+    path('', include('catalog.urls')),
+
+    # The REST API endpoint routing
+    path('api/reviews/', include('reviews.urls')),
+
+    path('accounts/', include('accounts.urls')),
+
+    path('orders/', include('orders.urls')),
 ]
+
+# For rendering uploaded design images locally
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

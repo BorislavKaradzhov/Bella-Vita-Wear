@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Update Design{% else %}Add New Design{% endif %} | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{% if object %}Update: {{ object.title }}{% else %}Add New Design{% endif %}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Using crispy-forms or manual rendering is recommended, but as_p is the standard fallback -->
+                        {{ form.as_p }}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">Save Design</button>
+                            <a href="{% url 'design-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

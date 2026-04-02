@@ -1,9 +1,28 @@
+import uuid
 from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
 from django.core.validators import MinLengthValidator
+
+class GarmentAttribute(models.Model):
+    GARMENT_TYPES = [
+        ('TS', 'T-Shirt'),
+        ('HD', 'Hoodie'),
+        ('CN', 'Crewneck'),
+    ]
+    garment_type = models.CharField(max_length=2, choices=GARMENT_TYPES)
+    title = models.CharField(max_length=200)
+    color = models.CharField(max_length=50)
+    size = models.CharField(max_length=5)  # e.g., S, M, L, XL, XXL
+
+    def __str__(self):
+        return f"{self.get_garment_type_display()} - {self.color} - {self.size}"
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True)
+    description = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -13,30 +32,33 @@ class Category(models.Model):
         return self.name
 
 
-class GarmentAttribute(models.Model):
-    GARMENT_TYPES = [
-        ('TS', 'T-Shirt'),
-        ('HD', 'Hoodie'),
-        ('CN', 'Crewneck'),
-    ]
-    garment_type = models.CharField(max_length=2, choices=GARMENT_TYPES)
-    color = models.CharField(max_length=50)
-    size = models.CharField(max_length=5)  # e.g., S, M, L, XL, XXL
-
-    def __str__(self):
-        return f"{self.get_garment_type_display()} - {self.color} - {self.size}"
-
-
 class Design(models.Model):
-    title = models.CharField(max_length=150, validators=[MinLengthValidator(3)])
-    image = models.ImageField(upload_to='designs/')
-    description = models.TextField()
-
-    # Many-to-One Relationship (A design belongs to one category, a category has many designs)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='designs')
-
-    # Many-to-Many Relationship (A design can be printed on many garments, a garment can have many designs)
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='designs/', blank=False, null=False)
+    is_featured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     available_garments = models.ManyToManyField(GarmentAttribute, related_name='designs')
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # First, generate the base slug
+            base_slug = slugify(self.title)
+            self.slug = base_slug
+
+            # Check if this slug already exists in the database
+            # We use a loop in case the first random suffix also exists
+            while Design.objects.filter(slug=self.slug).exists():
+                # Append a 4-character unique hex string (e.g., -a1b2)
+                self.slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
+
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('design-detail', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title

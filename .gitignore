@@ -1,4 +1,28 @@
-# .gitignore
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+bin/
+lib/
+include/
 
-# Environments
+# --- Python & Cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Designs ---
+designs/
+
+# --- Django Specific ---
+db.sqlite3
 .env
+media/
+staticfiles/
+
+# --- macOS Specific ---
+.DS_Store
+
+# --- IDE Specific (PyCharm) ---
+.idea/

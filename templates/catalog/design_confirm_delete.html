@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Design | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger shadow-sm d-inline-block p-5">
+        <h2 class="alert-heading mb-4">Confirm Deletion</h2>
+        <p class="lead">Are you absolutely sure you want to delete the design <strong>"{{ object.title }}"</strong>?</p>
+        <p class="text-muted small">This action cannot be undone.</p>
+        
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg me-2">Yes, Delete</button>
+            <a href="{% url 'design-detail' object.id %}" class="btn btn-secondary btn-lg">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

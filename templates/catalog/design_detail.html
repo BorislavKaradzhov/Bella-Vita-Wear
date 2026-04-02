@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ design.title }} | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-5">
+        <!-- Design Image -->
+        <div class="col-md-6">
+            <img src="{{ design.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ design.title }}">
+        </div>
+        
+        <!-- Design Configuration & Add to Cart -->
+        <div class="col-md-6">
+            <h1 class="display-5">{{ design.title }}</h1>
+            <p class="text-muted">Category: {{ design.category.name }}</p>
+            <p class="lead">{{ design.description }}</p>
+
+            <form method="POST" action="#">
+                {% csrf_token %}
+                <!-- Mockup of selection fields (to be populated with forms.py later) -->
+                <div class="mb-3">
+                    <label for="garment_type" class="form-label">Garment Type</label>
+                    <select class="form-select" id="garment_type" name="garment_type">
+                        <option value="TS">T-Shirt</option>
+                        <option value="HD">Hoodie</option>
+                        <option value="CN">Crewneck</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="print_location" class="form-label">Print Location</label>
+                    <select class="form-select" id="print_location" name="print_location">
+                        <option value="front">Front</option>
+                        <option value="back">Back</option>
+                    </select>
+                </div>
+
+                <!-- Conditional Button Logic -->
+                <div class="mt-4">
+                    {% if user.is_authenticated %}
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Add to cart</button>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg w-100">Sign up to buy</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Similar Designs Section -->
+    <div class="row mt-5">
+        <h3>Similar Designs You Might Like</h3>
+        {% for similar in similar_designs %}
+            <div class="col-md-3 mt-3">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ similar.image.url }}" class="card-img-top" alt="{{ similar.title }}">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ similar.title }}</h5>
+                        <a href="{% url 'design-detail' similar.id %}" class="btn btn-sm btn-secondary">View Design</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">No similar designs found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

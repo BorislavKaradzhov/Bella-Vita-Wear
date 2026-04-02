@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger shadow-sm d-inline-block p-5">
+        <h2 class="alert-heading">Delete Account</h2>
+        <p class="lead mt-3">Are you sure you want to permanently delete your account, <strong>{{ user.username }}</strong>?</p>
+        <p>You will lose access to your order history and discounts.</p>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg me-2">Delete My Account</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary btn-lg">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
