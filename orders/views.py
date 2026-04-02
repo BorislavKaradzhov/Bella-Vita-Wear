@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.views.generic import TemplateView, ListView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.urls import reverse_lazy
 
@@ -32,18 +32,23 @@ class AddToCartView(LoginRequiredMixin, View):
         print_location = request.POST.get('print_location', 'front')
         color = request.POST.get('color', 'Black')
         size = request.POST.get('size', 'L')
-        base_price = 25.00
 
-        OrderItem.objects.create(
+        # We use get_or_create to prevent duplicate cart rows,
+        # and we pull the accurate price directly from the design model.
+        order_item, item_created = OrderItem.objects.get_or_create(
             order=order,
             design=design,
             garment_type=garment_type,
             color=color,
             size=size,
             print_location=print_location,
-            price=base_price,
-            quantity=1
+            defaults={'price': design.price, 'quantity': 1}
         )
+
+        # If the exact same item is already in the cart, just increase the quantity
+        if not item_created:
+            order_item.quantity += 1
+            order_item.save()
 
         messages.success(request, f"'{design.title}' was added to your cart!")
         return redirect('cart-detail')
@@ -136,11 +141,16 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
 # 2. ADMIN & BACKGROUND VIEWS (Staff Facing)
 # ==========================================
 
-class OrderFulfillmentView(UpdateView):
+# Added LoginRequiredMixin and UserPassesTestMixin to secure this view
+class OrderFulfillmentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Handles updating order status and triggering the Celery loyalty task."""
     model = Order
     fields = ['status']
     success_url = reverse_lazy('admin_order_list')
+
+    # FIX: Ensure only staff members can access this URL
+    def test_func(self):
+        return self.request.user.is_staff
 
     def form_valid(self, form):
         response = super().form_valid(form)

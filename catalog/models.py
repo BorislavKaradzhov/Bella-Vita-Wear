@@ -11,9 +11,17 @@ class GarmentAttribute(models.Model):
         ('CN', 'Crewneck'),
     ]
     garment_type = models.CharField(max_length=2, choices=GARMENT_TYPES)
-    title = models.CharField(max_length=200)
+    # 1. Makes title optional so it doesn't have to be manually typed
+    title = models.CharField(max_length=200, blank=True)
     color = models.CharField(max_length=50)
     size = models.CharField(max_length=5)  # e.g., S, M, L, XL, XXL
+
+    # 2. Auto-generate the title before saving
+    def save(self, *args, **kwargs):
+        if not self.title:
+            # e.g., "Hoodie - Red - L"
+            self.title = f"{self.get_garment_type_display()} - {self.color} - {self.size}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.get_garment_type_display()} - {self.color} - {self.size}"
@@ -21,12 +29,17 @@ class GarmentAttribute(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "Categories"
         ordering = ['name']  # Automatically orders A-Z for the sidebar
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -35,7 +48,7 @@ class Category(models.Model):
 class Design(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='designs')
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=220, unique=True)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='designs/', blank=False, null=False)

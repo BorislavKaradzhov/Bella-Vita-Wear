@@ -12,9 +12,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-# --- Designs ---
-designs/
-
 # --- Django Specific ---
 db.sqlite3
 .env
