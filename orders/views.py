@@ -206,6 +206,16 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
             is_checked_out=True
         ).order_by('-created_at')
 
+class CustomerOrderDetailView(LoginRequiredMixin, DetailView):
+    """Displays the detailed receipt for a specific customer order."""
+    model = Order
+    template_name = 'orders/order_detail.html'
+    context_object_name = 'order'
+
+    def get_queryset(self):
+        # SECURITY: This ensures a user can ONLY retrieve their own orders.
+        # If they type an ID that belongs to someone else, Django returns a 404 Not Found.
+        return Order.objects.filter(user=self.request.user)
 
 # ==========================================
 # 2. ADMIN & BACKGROUND VIEWS (Staff Facing)

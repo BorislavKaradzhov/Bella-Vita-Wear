@@ -3,43 +3,87 @@
 {% block title %}Order #{{ order.id }} | Bella Vita Wear{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Order Details</h2>
-        <a href="{% url 'order-history' %}" class="btn btn-outline-secondary">Back to Orders</a>
-    </div>
-    
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light d-flex justify-content-between">
-            <span><strong>Order #{{ order.id }}</strong></span>
-            <span>Status: <strong>{{ order.status }}</strong></span>
+<div class="container my-5">
+
+    <div class="mb-4">
+        <a href="{% url 'order-history' %}" class="text-decoration-none text-muted mb-2 d-block">
+            <i class="bi bi-arrow-left"></i> Back to History
+        </a>
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold mb-0">Order #{{ order.id }}</h2>
+            {% if order.status == 'Pending' %}
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2">Processing</span>
+            {% elif order.status == 'Fulfilled' %}
+                <span class="badge bg-success fs-6 px-3 py-2">Shipped</span>
+            {% else %}
+                <span class="badge bg-danger fs-6 px-3 py-2">{{ order.status }}</span>
+            {% endif %}
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Shipping Information</h5>
-                    <p>{{ order.shipping_address|linebreaks }}</p>
+        <p class="text-muted mt-1">Placed on {{ order.created_at|date:"F d, Y" }}</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white fw-bold">
+                    Items in your order
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <h5>Order Summary</h5>
-                    <p class="mb-0">Date: {{ order.created_at|date:"M d, Y H:i" }}</p>
-                    <h4 class="mt-2 text-success">Total: ${{ order.total_price }}</h4>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.items.all %}
+                        <li class="list-group-item p-4">
+                            <div class="row align-items-center">
+                                <div class="col-sm-8">
+                                    <h5 class="fw-bold mb-1">{{ item.design.title|default:"Product Unavailable" }}</h5>
+                                    <p class="mb-0 text-muted">
+                                        Style: <strong>{{ item.garment_type }}</strong> |
+                                        Size: <strong>{{ item.size }}</strong> |
+                                        Color: <strong>{{ item.color }}</strong>
+                                    </p>
+                                </div>
+                                <div class="col-sm-4 text-sm-end mt-3 mt-sm-0">
+                                    <span class="d-block text-muted mb-1">Qty: {{ item.quantity }}</span>
+                                    <span class="fw-bold fs-5">${% widthratio item.price 1 item.quantity %}</span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>
 
-    <h4>Items Ordered</h4>
-    <ul class="list-group shadow-sm">
-        {% for item in order.items.all %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>{{ item.design.title }}</strong><br>
-                    <small class="text-muted">{{ item.garment_type }} | Color: {{ item.color }} | Size: {{ item.size }} | Print: {{ item.print_location|title }}</small>
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light fw-bold">Shipping Details</div>
+                <div class="card-body">
+                    <p class="mb-0 text-muted" style="white-space: pre-line;">{{ order.shipping_address }}</p>
                 </div>
-                <span>${{ item.price }}</span>
-            </li>
-        {% endfor %}
-    </ul>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light fw-bold">Order Summary</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Shipping</span>
+                        <span>
+                            {% if order.shipping_cost == 0 %}
+                                <span class="text-success fw-bold">FREE</span>
+                            {% else %}
+                                ${{ order.shipping_cost }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0 fw-bold">Total</span>
+                        <span class="h4 text-primary fw-bold mb-0">${{ order.total_price }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 {% endblock %}
