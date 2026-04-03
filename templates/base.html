@@ -23,8 +23,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
+
+                        {% if user.is_staff %}
+                            <li class="nav-item me-2">
+                                <a class="nav-link text-warning fw-bold" href="{% url 'admin_order_list' %}">
+                                    <i class="bi bi-shield-lock"></i> Staff Dashboard
+                                </a>
+                            </li>
+                        {% endif %}
+
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Welcome, {{ user.username }}</a>
+                            <a class="nav-link" href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'order-history' %}">My Orders</a>
