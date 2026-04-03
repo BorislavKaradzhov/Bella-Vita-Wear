@@ -1,52 +1,33 @@
 {% extends 'base.html' %}
 
+{% block title %}Shop | Bella Vita Wear{% endblock %}
+
 {% block content %}
-<div class="container my-5">
-    <div class="row">
-
-        <aside class="col-md-3 mb-4">
-            <h4 class="mb-3">Categories</h4>
-            <div class="list-group shadow-sm">
-                <a href="{% url 'design-list' %}" class="list-group-item list-group-item-action fw-bold">All Designs</a>
-                {% for cat in categories %}
-                    <a href="#" class="list-group-item list-group-item-action">{{ cat.name }}</a>
-                {% endfor %}
-            </div>
-        </aside>
-
-        <main class="col-md-9">
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-
-                {% for design in designs %}
-                <div class="col">
-                    <div class="card h-100 shadow-sm border-0">
-                        {% if design.image and design.image.name %}
-                            <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
-                        {% else %}
-                            <div class="bg-light text-center py-4">
-                                <span class="text-muted">No Image</span>
-                            </div>
-                        {% endif %}
-                        <div class="card-body text-center">
-                            <h6 class="card-title">{{ design.title }}</h6>
-                            <p class="text-primary fw-bold mb-0">${{ design.price }}</p>
-                        </div>
-                        <div class="card-footer bg-white border-0 text-center">
-                            <a href="{{ design.get_absolute_url }}" class="btn btn-outline-dark btn-sm w-100">View Details</a>
-                        </div>
-                    </div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for design in designs %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0">
+            {% if design.image and design.image.name %}
+                <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
+            {% else %}
+                <div class="bg-light text-center py-4">
+                    <span class="text-muted">No Image</span>
                 </div>
-
-                {% empty %}
-                <div class="col-12 text-center py-5 bg-light rounded shadow-sm">
-                    <h5 class="text-muted mb-0">No designs to display yet.</h5>
-                    <p class="text-muted small">Add some designs in the Admin panel!</p>
-                </div>
-                {% endfor %}
-
+            {% endif %}
+            <div class="card-body text-center">
+                <h6 class="card-title">{{ design.title }}</h6>
+                <p class="text-primary fw-bold mb-0">${{ design.price }}</p>
             </div>
-        </main>
-
+            <div class="card-footer bg-white border-0 text-center">
+                <a href="{{ design.get_absolute_url }}" class="btn btn-outline-dark btn-sm w-100">View Details</a>
+            </div>
+        </div>
     </div>
+
+    {% empty %}
+    <div class="col-12 text-center py-5 bg-light rounded shadow-sm">
+        <h5 class="text-muted mb-0">No designs to display yet.</h5>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
