@@ -126,7 +126,88 @@
             </div>
         {% endfor %}
     </div>
+
+    <hr class="my-5">
+
+    <div class="row mt-5">
+        <div class="col-md-8 mx-auto">
+            <h3 class="fw-bold mb-4">Customer Reviews</h3>
+
+            <div class="card shadow-sm border-0 bg-light mb-5">
+                <div class="card-body p-4">
+                    {% if user.is_authenticated %}
+
+                        {% if can_review %}
+                            <h5 class="fw-bold mb-3">Leave a Review</h5>
+                            <form method="POST" action="{% url 'reviews:add_review' design.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="rating" class="form-label fw-bold">Rating</label>
+                                    <select name="rating" id="rating" class="form-select w-auto" required>
+                                        <option value="5">5 - Excellent</option>
+                                        <option value="4">4 - Very Good</option>
+                                        <option value="3">3 - Good</option>
+                                        <option value="2">2 - Fair</option>
+                                        <option value="1">1 - Poor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="content" class="form-label fw-bold">Your Review</label>
+                                    <textarea name="content" id="content" rows="4" class="form-control" placeholder="What do you think about this design?" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-dark">Post Review</button>
+                            </form>
+                        {% else %}
+                            <div class="text-center py-3 text-muted">
+                                <i class="bi bi-bag-check display-6 mb-2 d-block"></i>
+                                <h5 class="mb-1">Verified Purchasers Only</h5>
+                                <p class="mb-0">You must purchase and receive this item before leaving a review.</p>
+                            </div>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="text-center py-3">
+                            <h5 class="mb-3">Want to leave a review?</h5>
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-dark">Log in to review</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="reviews-list">
+                {% for review in design.reviews.all %}
+                    <div class="d-flex mb-4 pb-4 border-bottom">
+                        <div class="flex-shrink-0">
+                            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                {{ review.user.username|make_list|first|upper }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="fw-bold mb-1">{{ review.user.username }}</h6>
+                            <div class="text-warning mb-2" style="font-size: 0.9rem;">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted ms-2 fs-6">{{ review.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <p class="mb-0 text-muted">{{ review.content }}</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-chat-square-text display-4 d-block mb-3"></i>
+                        <p>No reviews yet. Be the first to share your thoughts!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // 1. Grab the HTML elements

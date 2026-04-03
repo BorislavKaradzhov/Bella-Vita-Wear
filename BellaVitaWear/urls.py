@@ -26,7 +26,7 @@ urlpatterns = [
     path('', include('catalog.urls')),
 
     # The REST API endpoint routing
-    path('api/reviews/', include('reviews.urls')),
+    path('reviews/', include('reviews.urls')),
 
     path('accounts/', include('accounts.urls')),
 

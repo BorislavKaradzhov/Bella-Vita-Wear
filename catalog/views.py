@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Design, Category
 from .forms import DesignForm
+from orders.models import OrderItem
 
 class DesignListView(ListView):
     model = Design
@@ -28,6 +29,16 @@ class DesignDetailView(DetailView):
         context['similar_designs'] = Design.objects.filter(
             category=current_design.category
         ).exclude(id=current_design.id)[:4]
+
+        # Check if the current user is allowed to review
+        context['can_review'] = False
+        if self.request.user.is_authenticated:
+            context['can_review'] = OrderItem.objects.filter(
+                order__user=self.request.user,
+                order__status='Fulfilled',
+                design=self.object
+            ).exists()
+
         return context
 
 class DesignCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
