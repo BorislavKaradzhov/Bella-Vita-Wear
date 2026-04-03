@@ -29,10 +29,23 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-light">Order Summary</div>
                 <div class="card-body">
-                    <p class="d-flex justify-content-between"><span>Subtotal:</span> <span>${{ subtotal }}</span></p>
-                    <p class="d-flex justify-content-between text-success"><span>Discount:</span> <span>-${{ discount_amount }}</span></p>
+                    <p class="d-flex justify-content-between mb-1"><span>Subtotal:</span> <span>${{ subtotal|stringformat:".2f" }}</span></p>
+
+                    <p class="d-flex justify-content-between mb-1">
+                        <span>Shipping:</span>
+                        {% if shipping_cost == 0 %}
+                            <span class="text-success fw-bold">FREE</span>
+                        {% else %}
+                            <span>${{ shipping_cost|stringformat:".2f" }}</span>
+                        {% endif %}
+                    </p>
+
+                    {% if discount_amount > 0 %}
+                        <p class="d-flex justify-content-between text-success mb-1"><span>Discount:</span> <span>-${{ discount_amount|stringformat:".2f" }}</span></p>
+                    {% endif %}
+
                     <hr>
-                    <h5 class="d-flex justify-content-between fw-bold"><span>Total:</span> <span>${{ total }}</span></h5>
+                    <h5 class="d-flex justify-content-between fw-bold"><span>Total:</span> <span>${{ total|stringformat:".2f" }}</span></h5>
                 </div>
             </div>
         </div>

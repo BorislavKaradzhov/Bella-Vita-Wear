@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} Details | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{% url 'admin_order_list' %}" class="text-decoration-none text-muted mb-2 d-block">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            <h2 class="fw-bold mb-0">Order #{{ order.id }}</h2>
+            <p class="text-muted">Placed on {{ order.created_at|date:"F d, Y \a\t g:i A" }}</p>
+        </div>
+
+        <div class="bg-light p-3 rounded border">
+            <label class="fw-bold me-2">Current Status:</label>
+            <form method="POST" action="{% url 'order-fulfill' order.id %}" class="d-inline">
+                {% csrf_token %}
+                <select name="status" class="form-select d-inline-block w-auto shadow-sm" onchange="this.form.submit()">
+                    <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Fulfilled" {% if order.status == 'Fulfilled' %}selected{% endif %}>Fulfilled</option>
+                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white fw-bold">
+                    Items to Fulfill
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.items.all %}
+                        <li class="list-group-item p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold mb-1">{{ item.design.title|default:"Deleted Design" }}</h5>
+                                    <p class="mb-0 text-muted">
+                                        Style: <strong>{{ item.garment_type }}</strong> |
+                                        Size: <strong>{{ item.size }}</strong> |
+                                        Color: <strong>{{ item.color }}</strong>
+                                    </p>
+                                    <small class="text-muted">Print Location: {{ item.print_location|title }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="d-block text-muted mb-1">{{ item.quantity }} x ${{ item.price }}</span>
+                                    <span class="fw-bold fs-5">${% widthratio item.price 1 item.quantity %}</span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light fw-bold">Customer Details</div>
+                <div class="card-body">
+                    <p class="mb-1"><i class="bi bi-person text-muted"></i> <strong>{{ order.user.username }}</strong></p>
+                    <p class="mb-3"><i class="bi bi-envelope text-muted"></i> {{ order.user.email }}</p>
+
+                    <h6 class="fw-bold border-bottom pb-2 mt-4">Shipping Address</h6>
+                    <p class="mb-0 text-muted" style="white-space: pre-line;">{{ order.shipping_address }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light fw-bold">Payment Summary</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Shipping</span>
+                        <span>${{ order.shipping_cost }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0 fw-bold">Total Paid</span>
+                        <span class="h4 text-success fw-bold mb-0">${{ order.total_price }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

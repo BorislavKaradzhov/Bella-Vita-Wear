@@ -3,75 +3,171 @@
 {% block title %}{{ design.title }} | Bella Vita Wear{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container my-4">
     <div class="row mb-5">
-        <!-- Design Image -->
-        <div class="col-md-6">
-            {% if design.image and design.image.name %}
-                <img src="{{ design.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ design.title }}">
-            {% else %}
-                <div class="bg-light text-center py-5 rounded h-100 d-flex align-items-center justify-content-center">
-                    <span class="text-muted">No Image Available</span>
+
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="mb-3">
+                {% if design.image and design.image.name %}
+                    <img src="{{ design.image.url }}" id="mainImage" class="img-fluid rounded shadow-sm w-100" alt="{{ design.title }}" style="object-fit: cover; max-height: 600px;">
+                {% else %}
+                    <div class="bg-light text-center py-5 rounded h-100 d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                        <span class="text-muted">No Image Available</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if design.gallery_images.exists %}
+            <div class="row g-2">
+                <div class="col-3">
+                    <img src="{{ design.image.url }}" class="img-fluid rounded border shadow-sm" style="cursor: pointer; object-fit: cover; height: 100px; width: 100%;" onclick="document.getElementById('mainImage').src=this.src" alt="Main Thumbnail">
                 </div>
+
+                {% for gallery_img in design.gallery_images.all %}
+                <div class="col-3">
+                    <img src="{{ gallery_img.image.url }}" class="img-fluid rounded border shadow-sm" style="cursor: pointer; object-fit: cover; height: 100px; width: 100%;" onclick="document.getElementById('mainImage').src=this.src" alt="Gallery Image">
+                </div>
+                {% endfor %}
+            </div>
             {% endif %}
         </div>
-        
-        <!-- Design Configuration & Add to Cart -->
-        <div class="col-md-6">
-            <h1 class="display-5">{{ design.title }}</h1>
-            <p class="text-muted">Category: {{ design.category.name }}</p>
-            <p class="lead">{{ design.description }}</p>
+
+        <div class="col-md-6 ps-md-5">
+            <h1 class="display-5 fw-bold mb-2">{{ design.title }}</h1>
+            <p class="text-muted mb-4"><span class="badge bg-secondary">{{ design.category.name }}</span></p>
+
+            <h3 class="text-primary fw-bold mb-4" id="dynamicPrice" data-base-price="{{ design.price }}">
+                ${{ design.price }}
+            </h3>
+            <p class="lead mb-4">{{ design.description }}</p>
 
             <form method="POST" action="{% url 'add-to-cart' design.id %}">
                 {% csrf_token %}
-                <!-- Mockup of selection fields (to be populated with forms.py later) -->
-                <div class="mb-3">
-                    <label for="garment_type" class="form-label">Garment Type</label>
-                    <select class="form-select" id="garment_type" name="garment_type">
-                        <option value="TS">T-Shirt</option>
-                        <option value="HD">Hoodie</option>
-                        <option value="CN">Crewneck</option>
-                    </select>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="print_location" class="form-label">Print Location</label>
-                    <select class="form-select" id="print_location" name="print_location">
-                        <option value="front">Front</option>
-                        <option value="back">Back</option>
-                    </select>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="garment_type" class="form-label fw-bold">Garment Style</label>
+                        <select class="form-select" id="garment_type" name="garment_type" required>
+                            {% for type in design.available_types.all %}
+                                <option value="{{ type.name }}">{{ type.name }}</option>
+                            {% empty %}
+                                <option value="T-Shirt">T-Shirt</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="size" class="form-label fw-bold">Size</label>
+                        <select class="form-select" id="size" name="size" required>
+                            {% for size in design.available_sizes.all %}
+                                <option value="{{ size.name }}">{{ size.name }}</option>
+                            {% empty %}
+                                <option value="L">L</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Conditional Button Logic -->
-                <div class="mt-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="color" class="form-label fw-bold">Color</label>
+                        <select class="form-select" id="color" name="color" required>
+                            {% for color in design.available_colors.all %}
+                                <option value="{{ color.name }}">{{ color.name }}</option>
+                            {% empty %}
+                                <option value="Black">Black</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="print_location" class="form-label fw-bold">Print Location</label>
+                        <select class="form-select" id="print_location" name="print_location">
+                            <option value="front">Front</option>
+                            <option value="back">Back</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-2">
                     {% if user.is_authenticated %}
-                        <button type="submit" class="btn btn-primary btn-lg w-100">Add to cart</button>
+                        <button type="submit" class="btn btn-dark btn-lg w-100 py-3 text-uppercase fw-bold shadow-sm">
+                            <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                        </button>
                     {% else %}
-                        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg w-100">Sign up to buy</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-dark btn-lg w-100 py-3 text-uppercase fw-bold">
+                            Sign up to buy
+                        </a>
                     {% endif %}
                 </div>
             </form>
         </div>
     </div>
 
-    <hr>
+    <hr class="my-5">
 
-    <!-- Similar Designs Section -->
     <div class="row mt-5">
-        <h3>Similar Designs You Might Like</h3>
+        <h3 class="fw-bold mb-4">Similar Designs You Might Like</h3>
         {% for similar in similar_designs %}
-            <div class="col-md-3 mt-3">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ similar.image.url }}" class="card-img-top" alt="{{ similar.title }}">
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if similar.image and similar.image.name %}
+                        <img src="{{ similar.image.url }}" class="card-img-top" alt="{{ similar.title }}" style="height: 250px; object-fit: cover;">
+                    {% endif %}
                     <div class="card-body text-center">
-                        <h5 class="card-title">{{ similar.title }}</h5>
-                        <a href="{{ similar.get_absolute_url }}" class="btn btn-sm btn-secondary">View Design</a>
+                        <h6 class="card-title fw-bold">{{ similar.title }}</h6>
+                        <a href="{{ similar.get_absolute_url }}" class="btn btn-sm btn-outline-dark mt-2 w-100">View Design</a>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p class="text-muted">No similar designs found.</p>
+            <div class="col-12">
+                <p class="text-muted">No similar designs found in this category.</p>
+            </div>
         {% endfor %}
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Grab the HTML elements
+        const sizeDropdown = document.getElementById('size');
+        const typeDropdown = document.getElementById('garment_type');
+        const priceDisplay = document.getElementById('dynamicPrice');
+
+        // 2. Get the base price safely
+        const basePrice = parseFloat(priceDisplay.getAttribute('data-base-price'));
+
+        // 3. Create a single function that calculates the total
+        function calculateLivePrice() {
+            let currentPrice = basePrice;
+            const selectedSize = sizeDropdown.value;
+            const selectedType = typeDropdown.value;
+
+            // --- Style Upcharge ---
+            // NOTE: Must match the exact spelling of your Admin options
+            if (selectedType === 'Hoodie') {
+                currentPrice += 20.00;
+            } else if (selectedType === 'Crewneck Sweatshirt') {
+                currentPrice += 15.00;
+            }
+
+            // --- Size Upcharge ---
+            if (selectedSize === '2XL') {
+                currentPrice += 2.00;
+            } else if (selectedSize === '3XL') {
+                currentPrice += 4.00;
+            }
+
+            // Update the text on the screen
+            priceDisplay.textContent = '$' + currentPrice.toFixed(2);
+        }
+
+        // 4. Listen for changes on BOTH dropdowns
+        sizeDropdown.addEventListener('change', calculateLivePrice);
+        typeDropdown.addEventListener('change', calculateLivePrice);
+
+        // 5. Run it once on page load to ensure the price is perfectly accurate immediately
+        calculateLivePrice();
+    });
+</script>
 {% endblock %}
