@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.DesignListView.as_view(), name='design-list'),
     path('design/<slug:slug>/', views.DesignDetailView.as_view(), name='design-detail'),
     path('design/create/', views.DesignCreateView.as_view(), name='design-create'),
+    path('design/<slug:slug>/delete/', views.DesignDeleteView.as_view(), name='design-delete'),
     path('api/designs/', views.DesignListAPIView.as_view(), name='api-design-list'),
     path('api/designs/<slug:slug>/', views.DesignDetailAPIView.as_view(), name='api-design-detail'),
 ]

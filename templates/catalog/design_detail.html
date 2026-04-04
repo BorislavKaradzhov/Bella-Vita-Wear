@@ -33,12 +33,20 @@
         </div>
 
         <div class="col-md-6 ps-md-5">
+            {% if perms.catalog.delete_design %}
+                <div class="alert alert-warning py-2 mb-4 d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold"><i class="bi bi-shield-lock me-1"></i> Staff Controls</span>
+                    <a href="{% url 'design-delete' design.slug %}" class="btn btn-sm btn-outline-danger">Delete Design</a>
+                </div>
+            {% endif %}
+
             <h1 class="display-5 fw-bold mb-2">{{ design.title }}</h1>
             <p class="text-muted mb-4"><span class="badge bg-secondary">{{ design.category.name }}</span></p>
 
             <h3 class="text-primary fw-bold mb-4" id="dynamicPrice" data-base-price="{{ design.price }}">
                 ${{ design.price }}
             </h3>
+
             <p class="lead mb-4">{{ design.description }}</p>
 
             <form method="POST" action="{% url 'add-to-cart' design.id %}">
@@ -225,7 +233,6 @@
             const selectedType = typeDropdown.value;
 
             // --- Style Upcharge ---
-            // NOTE: Must match the exact spelling of your Admin options
             if (selectedType === 'Hoodie') {
                 currentPrice += 20.00;
             } else if (selectedType === 'Crewneck Sweatshirt') {

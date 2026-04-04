@@ -25,6 +25,8 @@ urlpatterns = [
     # We set the catalog as the root URL so users see designs immediately
     path('', include('catalog.urls')),
 
+    path('', include('core.urls')),
+
     # The REST API endpoint routing
     path('reviews/', include('reviews.urls')),
 

@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.core.validators import MinValueValidator
 
 
 # --- Attribute Models ---
@@ -48,7 +49,11 @@ class Design(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(1.00, message="The price must be at least $1.00.")]
+    )
 
     # We keep the main image for the catalog grid
     image = models.ImageField(upload_to='designs/', blank=False, null=False)

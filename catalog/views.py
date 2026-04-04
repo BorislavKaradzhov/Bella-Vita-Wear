@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Design, Category
 from .forms import DesignForm
@@ -55,6 +56,18 @@ class DesignCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_staff
 
+
+class DesignDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """Secure view to delete a design, restricted to users with explicit delete permissions."""
+    model = Design
+    template_name = 'catalog/design_confirm_delete.html'
+    success_url = reverse_lazy('design-list')
+
+    permission_required = 'catalog.delete_design'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "The design has been permanently deleted.")
+        return super().delete(request, *args, **kwargs)
 
 class DesignListAPIView(generics.ListAPIView):
     """

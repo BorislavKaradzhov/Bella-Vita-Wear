@@ -11,11 +11,11 @@ from catalog.models import Design
 from marketing.models import DiscountCode
 from marketing.tasks import check_and_issue_loyalty_discount
 from .models import Order, OrderItem
-from .forms import CheckoutForm
+from .forms import CheckoutForm, StaffOrderUpdateForm
 
 
 # ==========================================
-# 1. CART & CHECKOUT VIEWS (Customer Facing)
+# CART & CHECKOUT VIEWS (Customer Facing)
 # ==========================================
 
 class AddToCartView(LoginRequiredMixin, View):
@@ -38,14 +38,13 @@ class AddToCartView(LoginRequiredMixin, View):
         # --- DYNAMIC PRICING LOGIC ---
         final_price = design.price
 
-        # 1. Garment Style Upcharge
-        # NOTE: Make sure these strings exactly match what you typed in the Django Admin panel!
+        # Garment Style Upcharge
         if garment_type == 'Hoodie':
             final_price += Decimal('20.00')
         elif garment_type == 'Crewneck Sweatshirt':
             final_price += Decimal('15.00')
 
-        # 2. Size Upcharge (Stacks on top of the style upcharge)
+        # Size Upcharge (Stacks on top of the style upcharge)
         if size == '2XL':
             final_price += Decimal('2.00')
         elif size == '3XL':
@@ -80,7 +79,7 @@ class CartDetailView(LoginRequiredMixin, TemplateView):
             items = order.items.all()
             subtotal = sum(item.price * item.quantity for item in items)
 
-            # THE LOGIC: $3.99 shipping, free over $68.00
+            # $3.99 shipping, free on $68.00+
             shipping_cost = 0.00 if subtotal >= 68.00 else 3.99
             total = float(subtotal) + shipping_cost
 
@@ -218,14 +217,14 @@ class CustomerOrderDetailView(LoginRequiredMixin, DetailView):
         return Order.objects.filter(user=self.request.user)
 
 # ==========================================
-# 2. ADMIN & BACKGROUND VIEWS (Staff Facing)
+# ADMIN & BACKGROUND VIEWS (Staff Facing)
 # ==========================================
 
-# Added LoginRequiredMixin and UserPassesTestMixin to secure this view
 class OrderFulfillmentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Handles updating order status and triggering the Celery loyalty task."""
     model = Order
-    fields = ['status']
+    form_class = StaffOrderUpdateForm
+    template_name = 'orders/staff_order_update.html'
     success_url = reverse_lazy('admin_order_list')
 
     # Ensure only staff members can access this URL
@@ -240,7 +239,6 @@ class OrderFulfillmentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             check_and_issue_loyalty_discount.delay(self.object.user.id)
 
         return response
-
 
 class AdminOrderListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     """A custom frontend dashboard for staff to view and search all placed orders."""

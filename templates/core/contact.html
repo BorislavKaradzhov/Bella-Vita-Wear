@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h3 class="mb-0 fw-bold">Contact Support</h3>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <p class="text-muted text-center mb-4">Have a question about an order or our designs? Send us a message and we'll get back to you shortly.</p>
+                    
+                    <form method="POST" action="{% url 'core:contact' %}" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ field.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

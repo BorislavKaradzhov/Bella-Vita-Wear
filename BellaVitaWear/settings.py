@@ -40,6 +40,7 @@ PROJECT_APPS = [
     'orders',
     'reviews',
     'marketing',
+    'core',
     'rest_framework',
 ]
 
