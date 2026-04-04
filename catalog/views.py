@@ -6,6 +6,10 @@ from .models import Design, Category
 from .forms import DesignForm
 from orders.models import OrderItem
 
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from .serializers import DesignSerializer
+
 class DesignListView(ListView):
     model = Design
     template_name = 'catalog/design_list.html'
@@ -50,3 +54,26 @@ class DesignCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     # Only admins/staff can create designs
     def test_func(self):
         return self.request.user.is_staff
+
+
+class DesignListAPIView(generics.ListAPIView):
+    """
+    API endpoint that returns a JSON list of all designs.
+    URL: /api/designs/
+    """
+    queryset = Design.objects.all().order_by('-id')
+    serializer_class = DesignSerializer
+    permission_classes = [AllowAny]  # Publicly readable
+
+
+class DesignDetailAPIView(generics.RetrieveAPIView):
+    """
+    API endpoint that returns JSON details for a single design.
+    URL: /api/designs/<slug>/
+    """
+    queryset = Design.objects.all()
+    serializer_class = DesignSerializer
+    permission_classes = [AllowAny]
+
+    # Instructs DRF to search the database using the text slug instead of the integer ID
+    lookup_field = 'slug'
