@@ -3,7 +3,30 @@ from django.core.exceptions import ValidationError
 from .models import Design
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            # Loop through and securely validate EVERY file, not just the last one
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
+
 class DesignForm(forms.ModelForm):
+    extra_images = MultipleFileField(
+        widget=MultipleFileInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Additional Gallery Images (Hold CTRL/CMD to select multiple)"
+    )
+
     class Meta:
         model = Design
         fields = [
@@ -36,7 +59,7 @@ class DesignForm(forms.ModelForm):
         # Customize error messages directly in the Meta class
         error_messages = {
             'title': {
-                'unique': "A design with this exact title already exists! Please choose another.",
+                'unique': "A design with this exact title already exists! Please choose another title.",
             }
         }
 

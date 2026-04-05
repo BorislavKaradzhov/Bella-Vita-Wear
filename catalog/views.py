@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy
-from .models import Design, Category
+from .models import Design, DesignImage, Category
 from .forms import DesignForm
 from orders.models import OrderItem
 
@@ -46,16 +46,50 @@ class DesignDetailView(DetailView):
 
         return context
 
-class DesignCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class DesignCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Secure view for Content Managers to add new designs."""
     model = Design
     form_class = DesignForm
     template_name = 'catalog/design_form.html'
-    success_url = reverse_lazy('design-list')
+    permission_required = 'catalog.add_design'
 
-    # Only admins/staff can create designs
-    def test_func(self):
-        return self.request.user.is_staff
+    def form_valid(self, form):
+        # Save the main Design object to the database
+        response = super().form_valid(form)
 
+        # Grab the list of files from the 'extra_images' field
+        images = self.request.FILES.getlist('extra_images')
+
+        # Loop through and save each one to the database!
+        for img in images:
+            DesignImage.objects.create(design=self.object, image=img)
+
+        messages.success(self.request, "Success! The new design has been added to the catalog.")
+        return response
+
+    def get_success_url(self):
+        # Redirect to the newly created design's page
+        return reverse_lazy('design-detail', kwargs={'slug': self.object.slug})
+
+class DesignUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Secure view for Content Managers to edit existing designs."""
+    model = Design
+    form_class = DesignForm
+    template_name = 'catalog/design_form.html'
+    permission_required = 'catalog.change_design'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        images = self.request.FILES.getlist('extra_images')
+        for img in images:
+            DesignImage.objects.create(design=self.object, image=img)
+
+        messages.success(self.request, "The design has been successfully updated.")
+        return response
+
+    def get_success_url(self):
+        # Redirect back to the design page they just edited
+        return reverse_lazy('design-detail', kwargs={'slug': self.object.slug})
 
 class DesignDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """Secure view to delete a design, restricted to users with explicit delete permissions."""
