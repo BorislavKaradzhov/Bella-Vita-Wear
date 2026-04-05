@@ -12,13 +12,8 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+
                         {{ form.as_p }}
-                        
-                        <!-- Discount Code field (Optional, connected to the Loyalty system) -->
-                        <div class="mb-3">
-                            <label for="discount_code" class="form-label">Discount Code</label>
-                            <input type="text" name="discount_code" id="discount_code" class="form-control" placeholder="Enter code if you have one">
-                        </div>
 
                         <button type="submit" class="btn btn-success w-100 mt-3 text-uppercase fw-bold">Place Order</button>
                     </form>

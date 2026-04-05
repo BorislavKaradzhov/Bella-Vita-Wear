@@ -68,7 +68,7 @@ class AddToCartView(LoginRequiredMixin, View):
         return redirect('cart-detail')
 
 class CartDetailView(LoginRequiredMixin, TemplateView):
-    """Displays the active cart items."""
+    """Displays the active cart items and auto-applies loyalty discounts."""
     template_name = 'orders/cart.html'
 
     def get_context_data(self, **kwargs):
@@ -79,9 +79,20 @@ class CartDetailView(LoginRequiredMixin, TemplateView):
             items = order.items.all()
             subtotal = sum(item.price * item.quantity for item in items)
 
+            # AUTO-APPLY DISCOUNT LOGIC
+            discount_amount = 0.00
+            active_discount = DiscountCode.objects.filter(user=self.request.user, is_active=True).first()
+
+            if active_discount:
+                discount_amount = float(subtotal) * (active_discount.discount_percentage / 100.0)
+                context['applied_discount'] = active_discount
+                context['discount_amount'] = discount_amount
+
             # $3.99 shipping, free on $68.00+
             shipping_cost = 0.00 if subtotal >= 68.00 else 3.99
-            total = float(subtotal) + shipping_cost
+
+            # Total applies the automatic discount
+            total = float(subtotal) - discount_amount + shipping_cost
 
             context['cart_items'] = items
             context['cart_subtotal'] = subtotal
@@ -136,7 +147,7 @@ class UpdateCartItemView(LoginRequiredMixin, View):
         return redirect('cart-detail')
 
 class CheckoutView(LoginRequiredMixin, UpdateView):
-    """Handles checkout, shipping info, and loyalty discount application."""
+    """Handles checkout, shipping info, and automatic loyalty discount processing."""
     model = Order
     form_class = CheckoutForm
     template_name = 'orders/checkout.html'
@@ -150,13 +161,20 @@ class CheckoutView(LoginRequiredMixin, UpdateView):
         order = self.get_object()
         subtotal = sum(item.price * item.quantity for item in order.items.all())
 
+        discount_amount = 0.00
+        active_discount = DiscountCode.objects.filter(user=self.request.user, is_active=True).first()
+
+        if active_discount:
+            discount_amount = float(subtotal) * (active_discount.discount_percentage / 100.0)
+            context['applied_discount'] = active_discount
+
         # Calculate for the visual summary on the checkout page
-        shipping_cost = 0.00 if subtotal >= 68.00 else 3.99
+        shipping_cost = 0.00 if float(subtotal) >= 68.00 else 3.99
 
         context['subtotal'] = subtotal
         context['shipping_cost'] = shipping_cost
-        context['discount_amount'] = 0.00
-        context['total'] = float(subtotal) + shipping_cost
+        context['discount_amount'] = discount_amount
+        context['total'] = float(subtotal) - discount_amount + shipping_cost
         return context
 
     def form_valid(self, form):
@@ -164,26 +182,42 @@ class CheckoutView(LoginRequiredMixin, UpdateView):
         subtotal = sum(item.price * item.quantity for item in order.items.all())
 
         # 1. Calculate Shipping
-        shipping_cost = 0.00 if subtotal >= 68.00 else 3.99
+        shipping_cost = 0.00 if float(subtotal) >= 68.00 else 3.99
 
-        # 2. Calculate Discount
-        discount_code_input = form.cleaned_data.get('discount_code')
-        discount_amount = 0
+        # Set up our variables
+        discount_amount = 0.00
+        manual_code_input = form.cleaned_data.get('discount_code')
 
-        if discount_code_input:
+        # 2. PRIORITY 1: Did they manually type a code?
+        if manual_code_input:
             try:
+                # Try to validate the code they typed
                 valid_code = DiscountCode.objects.get(
-                    code=discount_code_input, user=self.request.user, is_active=True
+                    code=manual_code_input, user=self.request.user, is_active=True
                 )
                 discount_amount = float(subtotal) * (valid_code.discount_percentage / 100.0)
+
+                # Burn the manually entered code
                 valid_code.is_active = False
                 valid_code.save()
-                messages.success(self.request, "Loyalty discount applied successfully!")
+                messages.success(self.request, f"Promo code '{valid_code.code}' applied successfully!")
+
             except DiscountCode.DoesNotExist:
                 messages.error(self.request, "Invalid or expired discount code.")
-                return self.form_invalid(form)
+                return self.form_invalid(form)  # Stop checkout if they typed a bad code
 
-        # 3. Save the exact mathematical snapshot to the database
+        # 3. PRIORITY 2: If box was empty, do they have an automatic reward?
+        else:
+            active_discount = DiscountCode.objects.filter(user=self.request.user, is_active=True).first()
+            if active_discount:
+                discount_amount = float(subtotal) * (active_discount.discount_percentage / 100.0)
+
+                # Burn the automatic code
+                active_discount.is_active = False
+                active_discount.save()
+                messages.success(self.request, f"Loyalty discount '{active_discount.code}' applied automatically!")
+
+        # 4. Save the exact mathematical snapshot to the database
         order.shipping_cost = shipping_cost
         order.total_price = float(subtotal) - discount_amount + shipping_cost
         order.is_checked_out = True

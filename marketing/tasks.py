@@ -1,5 +1,7 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
 from orders.models import Order
 from .models import DiscountCode
 
@@ -10,7 +12,7 @@ User = get_user_model()
 def check_and_issue_loyalty_discount(user_id):
     """
     Checks if the user has a multiple of 3 fulfilled orders.
-    If so, generates a 50% discount code.
+    If so, generates a 50% discount code and sends a notification email.
     """
     try:
         user = User.objects.get(id=user_id)
@@ -34,7 +36,19 @@ def check_and_issue_loyalty_discount(user_id):
                 is_active=True
             )
 
-            return f"Discount code {code_string} generated for user {user.username}"
+            # Send the Loyalty Discount Email (Prints to console)
+            subject = "Your 50% Loyalty Discount is Here!"
+            message = f"Hi {user.username},\n\nThank you for placing {fulfilled_orders_count} orders! We've automatically applied a 50% discount code ({code_string}) to your next cart.\n\nEnjoy,\nBella Vita Wear"
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=True
+            )
+
+            return f"Discount code {code_string} generated and emailed for user {user.username}"
 
         return f"User {user.username} not eligible yet. Total fulfilled: {fulfilled_orders_count}"
 

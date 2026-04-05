@@ -88,6 +88,13 @@
                     </div>
                     {% endif %}
 
+                    {% if applied_discount %}
+                        <div class="text-success fw-bold d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-tag-fill me-1"></i>Discount ({{ applied_discount.discount_percentage }}% Off)</span>
+                            <span>-${{ discount_amount|floatformat:2 }}</span>
+                        </div>
+                    {% endif %}
+
                     <div class="d-flex justify-content-between mb-4">
                         <span class="h5">Total</span>
                         <span class="h5 text-primary">${{ cart_total|stringformat:".2f" }}</span>

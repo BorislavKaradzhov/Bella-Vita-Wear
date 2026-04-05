@@ -9,7 +9,7 @@ import re
 class CheckoutForm(forms.ModelForm):
     discount_code = forms.CharField(
         required=False,
-        help_text="Enter your Loyal Customer Discount code if you have one.",
+        help_text="Enter your discount code if you have one.",
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., SAVE20'})
     )
 
