@@ -1,0 +1,66 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'design-list' %}">Bella Vita Wear</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+
+                    {% if user.is_staff %}
+                        <li class="nav-item me-2">
+                            <a class="nav-link text-warning fw-bold" href="{% url 'admin_order_list' %}">
+                                <i class="bi bi-shield-lock"></i> Staff Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if perms.catalog.add_design %}
+                        <li class="nav-item">
+                            <a class="nav-link text-success fw-bold" href="{% url 'design-create' %}">
+                                <i class="bi bi-plus-circle-fill"></i> Add Design
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'order-history' %}">My Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'cart-detail' %}">
+                            <i class="bi bi-cart3"></i> Cart
+                            {% if cart_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ cart_count }}
+                                    <span class="visually-hidden">unread messages</span>
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link" style="display: inline; cursor: pointer;">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:contact' %}">Contact us</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
