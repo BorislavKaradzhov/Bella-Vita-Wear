@@ -4,6 +4,23 @@
 
 {% block content %}
 <div class="container my-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0 m-0 fs-6">
+            <li class="breadcrumb-item">
+                <a href="{% url 'design-list' %}" class="text-decoration-none text-muted">
+                    <i class="bi bi-house-door me-1"></i>All Designs
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'category-detail' design.category.slug %}" class="text-decoration-none text-muted">
+                    {{ design.category.name }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">
+                {{ design.title }}
+            </li>
+        </ol>
+    </nav>
     <div class="row mb-5">
 
         <div class="col-md-6 mb-4 mb-md-0">
@@ -53,7 +70,15 @@
                 </div>
             {% endif %}
 
-            <h1 class="display-5 fw-bold mb-2">{{ design.title }}</h1>
+            <h1 class="display-5 fw-bold mb-2 d-flex align-items-center gap-2">
+                {{ design.title }}
+
+                {% if design.is_featured %}
+                    <span class="badge bg-warning text-dark fs-6 align-middle rounded-pill shadow-sm">
+                        <i class="bi bi-star-fill text-danger me-1"></i> Featured
+                    </span>
+                {% endif %}
+            </h1>
             <p class="text-muted mb-4"><span class="badge bg-secondary">{{ design.category.name }}</span></p>
 
             <h3 class="text-primary fw-bold mb-4" id="dynamicPrice" data-base-price="{{ design.price }}">

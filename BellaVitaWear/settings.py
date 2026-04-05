@@ -27,9 +27,9 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'False'
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -144,9 +144,16 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'design-list'
 LOGIN_REDIRECT_URL = 'design-list'
 
+# ==========================================
+# EMAIL SETTINGS (BACKGROUND TASKS)
+# ==========================================
+# Prints emails to the terminal console instead of sending them over the internet
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'support@bellavitawear.com'
 
 # Celery Configuration Options
 CELERY_BROKER_URL = 'redis://localhost:6379/0'

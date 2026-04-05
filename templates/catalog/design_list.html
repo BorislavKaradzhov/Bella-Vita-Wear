@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load custom_filters %} {% block title %}Shop | Bella Vita Wear{% endblock %}
+{% load custom_filters %} {% block title %}All Designs | Bella Vita Wear{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
@@ -33,14 +33,24 @@
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for design in designs %}
     <div class="col">
-        <div class="card h-100 shadow-sm border-0">
-            {% if design.image and design.image.name %}
-                <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
-            {% else %}
-                <div class="bg-light text-center py-4">
-                    <span class="text-muted">No Image</span>
-                </div>
+        <div class="card h-100 shadow-sm border-0 position-relative">
+
+            {% if design.is_featured %}
+                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 rounded-pill shadow-sm py-2 px-3 z-1">
+                    <i class="bi bi-star-fill text-danger me-1"></i> Featured
+                </span>
             {% endif %}
+
+            <a href="{{ design.get_absolute_url }}" class="text-decoration-none">
+                {% if design.image and design.image.name %}
+                    <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
+                {% else %}
+                    <div class="bg-light text-center py-4 d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <span class="text-muted">No Image</span>
+                    </div>
+                {% endif %}
+            </a>
+
             <div class="card-body text-center">
                 <h6 class="card-title">{{ design.title }}</h6>
                 <p class="text-primary fw-bold mb-0">${{ design.price }}</p>
