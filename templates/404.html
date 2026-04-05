@@ -7,6 +7,14 @@
     <h1 class="display-1 fw-bold text-secondary">404</h1>
     <h2 class="mb-4">Oops! We couldn't find that page.</h2>
     <p class="lead text-muted mb-5">The design or page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-    <a href="{% url 'design-list' %}" class="btn btn-primary btn-lg">Return to Store</a>
+
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'design-list' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-cart me-2"></i>Return to Store
+        </a>
+        <a href="{% url 'core:contact' %}" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-envelope me-2"></i>Contact Support
+        </a>
+    </div>
 </div>
 {% endblock %}
