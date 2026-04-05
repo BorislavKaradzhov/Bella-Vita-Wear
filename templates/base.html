@@ -27,7 +27,10 @@
 
                     {% for category in sidebar_categories %}
                         <li class="nav-item list-group-item border-0 px-0 py-1">
-                            <a class="nav-link text-secondary" href="#">{{ category.name }}</a>
+                            <a class="nav-link {% if current_category and current_category.slug == category.slug %}text-primary fw-bold{% else %}text-secondary{% endif %}"
+                               href="{% url 'category-detail' category.slug %}">
+                                {{ category.name }}
+                            </a>
                         </li>
                     {% empty %}
                         <li class="nav-item text-muted">No categories available.</li>

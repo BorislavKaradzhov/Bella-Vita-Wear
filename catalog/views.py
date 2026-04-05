@@ -3,6 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
 from .models import Design, DesignImage, Category
 from .forms import DesignForm
 from orders.models import OrderItem
@@ -45,6 +46,29 @@ class DesignListView(SortableDesignMixin, ListView):
         queryset = super().get_queryset()
 
         return self.get_sorted_queryset(queryset)
+
+class CategoryDesignListView(SortableDesignMixin, ListView):
+    model = Design
+    template_name = 'catalog/design_list.html'
+    context_object_name = 'designs'
+    paginate_by = 6
+
+    def get_queryset(self):
+        # Get the category slug from the URL
+        category_slug = self.kwargs.get('slug')
+
+        # Filter the designs to only show ones in this category
+        qs = Design.objects.filter(category__slug=category_slug)
+
+        # Pass the filtered list to our Mixin to handle the A-Z, Price, Date sorting
+        return self.get_sorted_queryset(qs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Pass the current category to the template so we can show its title!
+        context['current_category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
+        return context
 
 class DesignDetailView(DetailView):
     model = Design
