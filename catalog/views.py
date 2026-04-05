@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.views.generic.base import ContextMixin, View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
@@ -11,16 +11,40 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from .serializers import DesignSerializer
 
-class DesignListView(ListView):
+
+class SortableDesignMixin(ContextMixin, View):
+    """A reusable mixin that adds dynamic sorting to any view containing Designs."""
+
+    def get_sorted_queryset(self, queryset):
+        sort_by = self.request.GET.get('sort', 'newest')
+        ordering_dict = {
+            'newest': '-created_at',
+            'oldest': 'created_at',
+            'name_asc': 'title',
+            'name_desc': '-title',
+            'price_asc': 'price',
+            'price_desc': '-price',
+        }
+
+        # Fallback to newest if URL contains incorrect parameters
+        order_by_field = ordering_dict.get(sort_by, '-created_at')
+        return queryset.order_by(order_by_field)
+
+    def get_context_data(self, **kwargs):
+        # To ensure any other mixins/views get their context too
+        context = super().get_context_data(**kwargs)
+        context['current_sort'] = self.request.GET.get('sort', 'newest')
+        return context
+class DesignListView(SortableDesignMixin, ListView):
     model = Design
     template_name = 'catalog/design_list.html'
     context_object_name = 'designs'
     paginate_by = 6  # Show 6 designs per page
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        return context
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        return self.get_sorted_queryset(queryset)
 
 class DesignDetailView(DetailView):
     model = Design
