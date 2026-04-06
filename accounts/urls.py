@@ -1,6 +1,7 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from . import views
+from accounts.forms import CustomLoginForm
 
 urlpatterns = [
     # Custom registration and profile views you will build
@@ -16,7 +17,8 @@ urlpatterns = [
     # Django's built-in authentication views
     path('login/', auth_views.LoginView.as_view(
         template_name='accounts/login.html',
-        redirect_authenticated_user=True
+        redirect_authenticated_user=True,
+        authentication_form=CustomLoginForm
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
