@@ -73,8 +73,16 @@ class StaffOrderUpdateForm(forms.ModelForm):
 
     def clean_status(self):
         status = self.cleaned_data.get('status')
+
+        # Prevent changing a Cancelled order to anything else
+        if self.instance.status == 'Cancelled' and status != 'Cancelled':
+            raise forms.ValidationError(
+                "A cancelled order cannot be changed."
+            )
+
         # Custom Validation: Prevent going backwards from Fulfilled to Pending
         if self.instance.status == 'Fulfilled' and status == 'Pending':
             raise forms.ValidationError(
-                "You cannot change a fulfilled order back to pending. Please use 'Cancelled' if necessary.")
+                "You cannot change a fulfilled order back to pending. Please use 'Cancelled' if necessary."
+            )
         return status

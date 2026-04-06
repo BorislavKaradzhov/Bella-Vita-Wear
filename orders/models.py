@@ -27,6 +27,18 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.user.username} - {self.status}"
 
+    @property
+    def subtotal(self):
+        return sum(item.price * item.quantity for item in self.items.all())
+
+    @property
+    def discount_amount(self):
+        if self.total_price:
+            discount = float(self.subtotal) + float(self.shipping_cost) - float(self.total_price)
+
+            return round(max(0.00, discount), 2)
+        return 0.00
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     # If a design is deleted from the catalog, we don't want to delete the order history
@@ -44,3 +56,7 @@ class OrderItem(models.Model):
     def __str__(self):
         design_title = self.design.title if self.design else "Deleted Design"
         return f"{self.quantity}x {design_title} (Order #{self.order.id})"
+
+    @property
+    def total_price(self):
+        return self.price * self.quantity

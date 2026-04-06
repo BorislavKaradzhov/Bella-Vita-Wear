@@ -8,12 +8,13 @@
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
 
-                    {% if user.is_staff %}
+                    {% if perms.orders.change_order %}
                         <li class="nav-item me-2">
                             <a class="nav-link text-warning fw-bold" href="{% url 'admin_order_list' %}">
-                                <i class="bi bi-shield-lock"></i> Staff Dashboard
+                                <i class="bi bi-shield-lock"></i> Order Dashboard
                             </a>
                         </li>
+
                     {% endif %}
 
                     {% if perms.catalog.add_design %}
@@ -22,11 +23,14 @@
                                 <i class="bi bi-plus-circle-fill"></i> Add Design
                             </a>
                         </li>
+
                     {% endif %}
 
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
                     </li>
+
+                    {% if not user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'order-history' %}">My Orders</a>
                     </li>
@@ -41,6 +45,7 @@
                             {% endif %}
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post" style="display: inline;">
                             {% csrf_token %}
