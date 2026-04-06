@@ -1,22 +1,30 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 
 User = get_user_model()
 
-class CustomUserCreationForm(UserCreationForm):
+
+class BootstrapFormMixin:
+    """A mixin that automatically applies Bootstrap classes and floating labels to any form."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            # Add the base Bootstrap class (preserving any existing classes if needed)
+            existing_classes = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = f'form-control {existing_classes}'.strip()
+
+            # Add the placeholder for floating labels
+            if field.label:
+                field.widget.attrs['placeholder'] = field.label
+
+class CustomUserCreationForm(BootstrapFormMixin, UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('username', 'email', 'phone_number', 'shipping_address')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Loop through every field to apply Bootstrap styling and Floating Label placeholders
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
-
-class CustomUserChangeForm(forms.ModelForm):
+class CustomUserChangeForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'phone_number', 'shipping_address')
@@ -35,19 +43,7 @@ class CustomUserChangeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['username'].disabled = True
-
-        # Add Bootstrap styling and placeholder for the disabled field
-        self.fields['username'].widget.attrs.update({
-            'class': 'form-control bg-light',
-            'placeholder': self.fields['username'].label
-        })
-
-        for field_name, field in self.fields.items():
-            if field_name != 'username':
-                field.widget.attrs['class'] = 'form-control'
-                # Add placeholder so Floating Labels work on the profile update page too!
-                if field.label:
-                    field.widget.attrs['placeholder'] = field.label
+        self.fields['username'].widget.attrs['class'] += ' bg-light' # Append the gray background
 
     # Implement form-level validations with user-friendly error messages
     def clean_phone_number(self):
@@ -67,11 +63,8 @@ class CustomUserChangeForm(forms.ModelForm):
 
         return phone
 
-class CustomLoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class CustomLoginForm(BootstrapFormMixin, AuthenticationForm):
+    pass
 
-        # Apply Bootstrap classes and placeholders for floating labels
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
+class CustomPasswordChangeForm(BootstrapFormMixin, PasswordChangeForm):
+    pass

@@ -3,54 +3,78 @@
 {% block title %}My Order History | Bella Vita Wear{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4 fw-bold">My Order History</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-    {% if orders %}
-        <div class="card shadow-sm border-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Order #</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th class="text-end px-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                        <tr>
-                            <td class="px-4 fw-bold">#{{ order.id }}</td>
-                            <td>{{ order.created_at|date:"M d, Y" }}</td>
-                            <td>
-                                {% if order.status == 'Pending' %}
-                                    <span class="badge bg-warning text-dark">Processing</span>
-                                {% elif order.status == 'Fulfilled' %}
-                                    <span class="badge bg-success">Shipped</span>
-                                {% else %}
-                                    <span class="badge bg-danger">{{ order.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold">${{ order.total_price }}</td>
-                            <td class="text-end px-4">
-                                <a href="{% url 'order-detail' order.id %}" class="btn btn-sm btn-outline-dark">
-                                    View Details
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card shadow-lg border-0 rounded-3 mt-4">
+
+                <div class="card-header bg-dark text-white py-3 px-4 rounded-top-3 d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-box-seam me-2"></i>My Order History</h4>
+
+                    {% if orders %}
+                        <span class="badge bg-warning text-dark rounded-pill">{{ orders|length }} Orders</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-0">
+
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3 ps-4 text-muted small text-uppercase">Order #</th>
+                                        <th class="py-3 text-muted small text-uppercase">Date</th>
+                                        <th class="py-3 text-muted small text-uppercase">Status</th>
+                                        <th class="py-3 text-muted small text-uppercase">Total</th>
+                                        <th class="py-3 pe-4 text-end text-muted small text-uppercase">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td class="ps-4 fw-bold">#{{ order.id }}</td>
+
+                                        <td class="text-secondary">{{ order.created_at|date:"M d, Y" }}</td>
+
+                                        <td>
+                                            {% if order.status == 'Pending' %}
+                                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Processing</span>
+                                            {% elif order.status == 'Fulfilled' %}
+                                                <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Shipped</span>
+                                            {% else %}
+                                                <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="fw-bold text-dark">${{ order.total_price }}</td>
+
+                                        <td class="text-end pe-4">
+                                            <a href="{% url 'order-detail' order.id %}" class="btn btn-sm btn-outline-dark fw-bold">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-bag-x text-muted mb-3 d-block" style="font-size: 4rem;"></i>
+                            <h4 class="fw-bold text-dark">No orders yet</h4>
+                            <p class="text-muted mb-4">Looks like you haven't made your first purchase.</p>
+                            <a href="{% url 'design-list' %}" class="btn btn-warning btn-lg fw-bold px-5 shadow-sm">
+                                Start Shopping
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
             </div>
+
         </div>
-    {% else %}
-        <div class="text-center py-5 bg-light rounded shadow-sm">
-            <i class="bi bi-box-seam display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">You haven't placed any orders yet.</h4>
-            <a href="{% url 'design-list' %}" class="btn btn-primary mt-3">Start Shopping</a>
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

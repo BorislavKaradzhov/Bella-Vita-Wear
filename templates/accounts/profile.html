@@ -3,33 +3,82 @@
 {% block title %}My Profile | Bella Vita Wear{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Profile Information</h2>
+<div class="container py-5">
     <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <form method="post">
+
+        <div class="col-md-8 mb-4 mb-md-0">
+            <div class="card shadow-lg border-0 rounded-3">
+
+                <div class="card-header bg-dark text-white py-3 rounded-top-3">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-person-gear me-2"></i>Profile Information</h4>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" novalidate>
                         {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-success">Update Profile</button>
-                        <a href="{% url 'password-change' %}" class="btn btn-warning">
-                            Change Password
-                        </a>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger rounded-3 mb-4 shadow-sm">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0 small fw-bold">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                            <div class="form-floating mb-3">
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}" class="text-muted">{{ field.label }}</label>
+
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block fw-bold small mt-1">
+                                        {% for error in field.errors %}
+                                            <i class="bi bi-exclamation-circle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                    <div class="form-text small text-muted mt-1">{{ field.help_text|safe }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-flex flex-column flex-sm-row gap-2 mt-4 mb-0">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold flex-grow-1">
+                                Update Profile
+                            </button>
+                            <a href="{% url 'password-change' %}" class="btn btn-outline-dark btn-lg fw-bold">
+                                <i class="bi bi-key-fill"></i> Change Password
+                            </a>
+                        </div>
+
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-danger rounded-3 sticky-top" style="top: 2rem;">
+                <div class="card-body text-center p-4">
+
+                    <div class="mb-3">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 2.5rem;"></i>
+                    </div>
+
+                    <h5 class="text-danger fw-bold">Danger Zone</h5>
+                    <p class="small text-muted mb-4">
+                        Once you delete your account, there is no going back. Please be certain.
+                    </p>
+
+                    <a href="{% url 'delete-account' %}" class="btn btn-outline-danger fw-bold w-100">
+                        Delete Account
+                    </a>
 
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mt-4 mt-md-0">
-            <div class="card shadow-sm border-danger">
-                <div class="card-body text-center">
-                    <h5 class="text-danger">Danger Zone</h5>
-                    <p class="small text-muted">Permanently delete your account and all associated data.</p>
-                    <a href="{% url 'delete-account' %}" class="btn btn-outline-danger w-100">Delete Account</a>
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 {% endblock %}

@@ -1,16 +1,14 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from . import views
-from accounts.forms import CustomLoginForm
+from accounts.forms import CustomLoginForm, CustomPasswordChangeForm
+from accounts.views import CustomPasswordChangeView
 
 urlpatterns = [
     # Custom registration and profile views you will build
     path('register/', views.UserRegistrationView.as_view(), name='register'),
     path('register/success/', views.RegistrationSuccessView.as_view(), name='registration-success'),
-    path('password/', auth_views.PasswordChangeView.as_view(
-                template_name='accounts/password_change.html',
-                success_url=reverse_lazy('profile')
-            ), name='password-change'),
+    path('password/', CustomPasswordChangeView.as_view(), name='password-change'),
     path('profile/', views.UserProfileView.as_view(), name='profile'),
     path('profile/delete/', views.UserDeleteView.as_view(), name='delete-account'),
 
