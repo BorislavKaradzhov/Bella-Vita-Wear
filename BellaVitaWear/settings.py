@@ -107,6 +107,8 @@ if 'DATABASE_URL' in os.environ:
     CELERY_TASK_ALWAYS_EAGER = True
     CELERY_TASK_STORE_EAGER_RESULT = True
 
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
