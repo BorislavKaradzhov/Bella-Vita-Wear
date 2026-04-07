@@ -18,7 +18,7 @@ The cloud-deployed version is available at https://bellavitawear.onrender.com
 * **Full CRUD Review System:** Customers can read, write, update, and delete their own product reviews, secured by Django's `UserPassesTestMixin`. When an order is marked 'Fulfilled', the customer can leave a review by going to the design detail page.
 * **Asynchronous Processing:** Utilizes Celery for automated background tasks, such as calculating customer loyalty discounts upon order fulfillment. After every three fulfilled orders for a customer, Celery issues an automatic 50% discount code, emails the automatic discount email (prints on Celery terminal for development purposes), and automatically applies it to the customer's next order. Prints Welcome email on the local terminal upon successful user registration.
 * **RESTful API:** Provides a JSON endpoint (`/api/designs/`) for fetching product catalog data, and (`/api/designs/<slug>/`) that returns JSON details for a single design.
-* **Role-Based Access Control:** Distinct permissions for Customers, Fulfillment Staff, and Administrators. Distinct navbar and links permissions for different groups and users.
+* **Role-Based Access Control:** Distinct permissions for Customers, Content Management, Fulfillment Team, and Administrators. Distinct navbar and links permissions for different groups and users.
 * **Cloud Media Management:** Seamless image upload and delivery via Cloudinary.
 * **Custom Error Handling:** Beautifully styled, user-friendly 404 (Not Found) and 500 (Server Error) pages.
 
