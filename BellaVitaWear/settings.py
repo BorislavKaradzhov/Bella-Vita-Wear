@@ -104,10 +104,10 @@ if 'DATABASE_URL' in os.environ:
     }
 
     # 2. Tell Celery to execute tasks locally and immediately, bypassing Redis
-    CELERY_TASK_ALWAYS_EAGER = True
-    CELERY_TASK_STORE_EAGER_RESULT = True
-
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # CELERY_TASK_ALWAYS_EAGER = True
+    # CELERY_TASK_STORE_EAGER_RESULT = True
+    #
+    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     STORAGES = {
         "default": {
