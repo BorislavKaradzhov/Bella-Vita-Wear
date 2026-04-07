@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}My Reviews | Bella Vita Wear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">My Reviews</h2>
+
+    <div class="row">
+        {% for review in reviews %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title fw-bold mb-0">{{ review.design.title }}</h5>
+                        <div class="text-warning">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-3">Posted on {{ review.created_at|date:"M d, Y" }}</p>
+                    <p class="card-text">{{ review.content }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 text-end pb-3">
+                    <a href="{% url 'reviews:review-update' review.id %}" class="btn btn-sm btn-outline-dark me-2">Edit</a>
+                    <a href="{% url 'reviews:review-delete' review.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-light rounded">
+            <i class="bi bi-chat-left-text display-4 text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">You haven't written any reviews yet.</h5>
+            <a href="{% url 'design-list' %}" class="btn btn-primary mt-2">Shop Designs</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

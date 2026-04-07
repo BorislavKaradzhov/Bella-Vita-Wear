@@ -6,6 +6,9 @@ app_name = 'reviews'
 urlpatterns = [
     # Frontend URL (For customers submitting the HTML Form)
     path('add/<int:design_id>/', views.AddReviewView.as_view(), name='add_review'),
+    path('my-reviews/', views.UserReviewListView.as_view(), name='my-reviews'),
+    path('<int:pk>/edit/', views.ReviewUpdateView.as_view(), name='review-update'),
+    path('<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review-delete'),
 
     # API URL (For external apps requesting JSON Data)
     path('design/<int:design_id>/', views.DesignReviewListAPIView.as_view(), name='api-design-reviews'),

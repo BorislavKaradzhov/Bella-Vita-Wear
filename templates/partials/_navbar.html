@@ -38,6 +38,9 @@
 
                     {% if not user.is_staff %}
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reviews:my-reviews' %}">My Reviews</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'order-history' %}">My Orders</a>
                     </li>
                     <li class="nav-item">

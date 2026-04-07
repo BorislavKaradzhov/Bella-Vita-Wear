@@ -1,22 +1,39 @@
 {% extends 'base.html' %}
 
-{% block title %}Leave a Review | Bella Vita Wear{% endblock %}
+{% block title %}
+    {% if object %}Edit Review{% else %}Leave a Review{% endif %} | Bella Vita Wear
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Review: {{ design.title }}</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        {% if object %}
+                            Edit Review: {{ object.design.title }}
+                        {% else %}
+                            Review: {{ design.title }}
+                        {% endif %}
+                    </h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="post">
                         {% csrf_token %}
+
                         {{ form.as_p }}
-                        <div class="d-flex justify-content-end mt-3">
-                            <a href="{% url 'design-detail' design.id %}" class="btn btn-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-success">Submit Review</button>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            {% if object %}
+                                <a href="{% url 'reviews:my-reviews' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            {% else %}
+                                <a href="{% url 'design-detail' design.id %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-dark">
+                                {% if object %}Save Changes{% else %}Submit Review{% endif %}
+                            </button>
                         </div>
                     </form>
                 </div>
