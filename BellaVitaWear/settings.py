@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -104,6 +106,8 @@ if 'DATABASE_URL' in os.environ:
     # 2. Tell Celery to execute tasks locally and immediately, bypassing Redis
     CELERY_TASK_ALWAYS_EAGER = True
     CELERY_TASK_STORE_EAGER_RESULT = True
+
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # ==========================================
 # LOCAL DEVELOPMENT SETTINGS
