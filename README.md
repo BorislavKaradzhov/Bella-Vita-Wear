@@ -2,7 +2,7 @@
 
 Bella Vita Wear is an e-commerce platform built with Django. It features a robust product catalog, an interactive customer review system with object-level security, asynchronous background task processing, and a RESTful API endpoint.
 
-## 💻 Local Setup & Installation
+## 💻 Cloud-deployed Version
 
 The cloud-deployed version is available at https://bellavitawear.onrender.com
 
