@@ -28,7 +28,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'False'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
@@ -104,10 +104,14 @@ if 'DATABASE_URL' in os.environ:
     }
 
     # 2. Tell Celery to execute tasks locally and immediately, bypassing Redis
-    # CELERY_TASK_ALWAYS_EAGER = True
-    # CELERY_TASK_STORE_EAGER_RESULT = True
-    #
-    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_STORE_EAGER_RESULT = False
+
+    # Instruct Celery to use the server's RAM instead of Redis
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     STORAGES = {
         "default": {
