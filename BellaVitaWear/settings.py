@@ -92,12 +92,24 @@ WSGI_APPLICATION = 'BellaVitaWear.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# ==========================================
+# PRODUCTION CLOUD SETTINGS (Render)
+# ==========================================
 if 'DATABASE_URL' in os.environ:
+    # 1. Use the Cloud PostgreSQL Database
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600)
     }
 
+    # 2. Tell Celery to execute tasks locally and immediately, bypassing Redis
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_STORE_EAGER_RESULT = True
+
+# ==========================================
+# LOCAL DEVELOPMENT SETTINGS
+# ==========================================
 else:
+    # 1. Use your local PostgreSQL Database from your .env file
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -108,6 +120,9 @@ else:
             'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
+
+    # 2. Use your local Redis server for Celery
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
