@@ -11,21 +11,29 @@
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
                     <div class="row align-items-center">
+
                         <div class="col-md-2">
                             <div class="bg-light text-center py-4 rounded">
                                 <i class="bi bi-image text-muted"></i>
                             </div>
                         </div>
 
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <h5 class="card-title mb-1">{{ item.design.title }}</h5>
+                            <span class="badge bg-light text-dark border mb-1">{{ item.garment_type }}</span>
                             <p class="text-muted small mb-0">
-                                Size: {{ item.size }} | Color: {{ item.color }} | Style: {{ item.garment_type }}
+                                Size: {{ item.size }} | Color: {{ item.color }}
                             </p>
                         </div>
 
-                        <div class="col-md-3">
-                            <div class="d-flex align-items-center justify-content-center gap-2">
+                        <div class="col-md-2 text-center">
+                            <span class="text-muted small d-block mb-1">Unit Price</span>
+                            <span class="fw-semibold">${{ item.price|floatformat:2 }}</span>
+                        </div>
+
+                        <div class="col-md-2">
+                            <span class="text-muted small d-block text-center mb-1">Qty</span>
+                            <div class="d-flex align-items-center justify-content-center gap-1">
                                 <form method="POST" action="{% url 'update-cart-item' item.id %}" class="m-0 p-0">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="decrease">
@@ -43,8 +51,10 @@
                         </div>
 
                         <div class="col-md-2 text-end d-flex flex-column align-items-end justify-content-center gap-1">
-                            <span class="text-primary fw-bold fs-5">${{ item.price }}</span>
-                            <form method="POST" action="{% url 'update-cart-item' item.id %}" class="m-0 p-0">
+                            <span class="text-muted small d-block">Item Total</span>
+                            <span class="text-primary fw-bold fs-5">${{ item.total_price|floatformat:2 }}</span>
+
+                            <form method="POST" action="{% url 'update-cart-item' item.id %}" class="m-0 p-0 mt-1">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="remove">
                                 <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent p-0 small">

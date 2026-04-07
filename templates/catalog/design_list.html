@@ -1,115 +1,141 @@
 {% extends 'base.html' %}
 
-{% load custom_filters %} {% block title %}All Designs | Bella Vita Wear{% endblock %}
+{% load custom_filters %}
+
+{% block title %}All Designs | Bella Vita Wear{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12 d-flex justify-content-end align-items-center">
-        <form method="GET" class="d-flex align-items-center">
+<div class="container py-5">
 
-            {% if request.GET.category %}
-                <input type="hidden" name="category" value="{{ request.GET.category }}">
-            {% endif %}
-            {% if request.GET.q %}
-                <input type="hidden" name="q" value="{{ request.GET.q }}">
-            {% endif %}
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-end align-items-center">
+            <form method="GET" class="d-flex align-items-center">
 
-            <label for="sort" class="me-2 fw-bold text-muted text-nowrap">
-                <i class="bi bi-filter-circle me-1"></i>Sort by:
-            </label>
-
-            <select name="sort" id="sort" class="form-select bg-light border-0 shadow-sm" onchange="this.form.submit()">
-                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Date: Newest First</option>
-                <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Date: Oldest First</option>
-                <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
-                <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
-                <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-            </select>
-        </form>
-    </div>
-</div>
-
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for design in designs %}
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0 position-relative">
-
-            {% if design.is_featured %}
-                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 rounded-pill shadow-sm py-2 px-3 z-1">
-                    <i class="bi bi-star-fill text-danger me-1"></i> Featured
-                </span>
-            {% endif %}
-
-            <a href="{{ design.get_absolute_url }}" class="text-decoration-none">
-                {% if design.image and design.image.name %}
-                    <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
-                {% else %}
-                    <div class="bg-light text-center py-4 d-flex align-items-center justify-content-center" style="height: 250px;">
-                        <span class="text-muted">No Image</span>
-                    </div>
+                {% if request.GET.category %}
+                    <input type="hidden" name="category" value="{{ request.GET.category }}">
                 {% endif %}
-            </a>
+                {% if request.GET.q %}
+                    <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
 
-            <div class="card-body text-center">
-                <h6 class="card-title">{{ design.title }}</h6>
-                <p class="text-primary fw-bold mb-0">${{ design.price }}</p>
-            </div>
-            <div class="card-footer bg-white border-0 text-center">
-                <a href="{{ design.get_absolute_url }}" class="btn btn-outline-dark btn-sm w-100">View Details</a>
-            </div>
+                <div class="form-check form-switch me-4 mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch" id="onSaleSwitch" name="on_sale" value="true"
+                           onchange="this.form.submit()" {% if request.GET.on_sale == 'true' %}checked{% endif %}>
+                    <label class="form-check-label fw-bold text-danger text-nowrap" for="onSaleSwitch">
+                        <i class="bi bi-tag-fill me-1"></i>On Sale
+                    </label>
+                </div>
+
+                <label for="sort" class="me-2 fw-bold text-muted text-nowrap">
+                    <i class="bi bi-filter-circle me-1"></i>Sort by:
+                </label>
+                <select name="sort" id="sort" class="form-select bg-light border-0 shadow-sm" onchange="this.form.submit()">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Date: Newest First</option>
+                    <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Date: Oldest First</option>
+                    <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                    <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+                    <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                </select>
+
+            </form>
         </div>
     </div>
 
-    {% empty %}
-    <div class="col-12 text-center py-5 bg-light rounded shadow-sm">
-        <h5 class="text-muted mb-0">No designs to display yet.</h5>
-    </div>
-    {% endfor %}
-</div>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for design in designs %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 position-relative">
 
-{% if is_paginated %}
-<nav aria-label="Catalog page navigation" class="mt-5 mb-4">
-    <ul class="pagination justify-content-center shadow-sm">
+                {% if design.is_featured %}
+                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 rounded-pill shadow-sm py-2 px-3 z-1">
+                        <i class="bi bi-star-fill text-danger me-1"></i> Featured
+                    </span>
+                {% endif %}
 
-        {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link text-dark" href="?{% query_transform page=page_obj.previous_page_number %}">
-                    <i class="bi bi-chevron-left me-1"></i>Previous
+                <a href="{{ design.get_absolute_url }}" class="text-decoration-none">
+                    {% if design.image and design.image.name %}
+                        <img src="{{ design.image.url }}" class="card-img-top" alt="{{ design.title }}">
+                    {% else %}
+                        <div class="bg-light text-center py-4 d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <span class="text-muted">No Image</span>
+                        </div>
+                    {% endif %}
                 </a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link text-muted"><i class="bi bi-chevron-left me-1"></i>Previous</span>
-            </li>
-        {% endif %}
 
-        {% for num in paginator.page_range %}
-            {% if page_obj.number == num %}
-                <li class="page-item active" aria-current="page">
-                    <span class="page-link bg-dark border-dark">{{ num }}</span>
-                </li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <div class="card-body text-center">
+                    <h6 class="card-title text-truncate" title="{{ design.title }}">{{ design.title }}</h6>
+
+                    {% if design.discount_percentage > 0 %}
+                        <p class="text-muted small text-decoration-line-through mb-0">
+                            ${{ design.price }}
+                        </p>
+                        <p class="text-danger fw-bold fs-5 mb-0">
+                            ${{ design.price|apply_discount:design.discount_percentage }}
+                        </p>
+                    {% else %}
+                        <p class="text-primary fw-bold fs-5 mb-0">${{ design.price }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-white border-0 text-center pb-3">
+                    <a href="{{ design.get_absolute_url }}" class="btn btn-outline-dark btn-sm w-100 fw-bold">View Details</a>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-light rounded shadow-sm">
+            <i class="bi bi-search display-1 text-muted mb-3 d-block"></i>
+            <h5 class="fw-bold text-dark mb-0">No designs found.</h5>
+            <p class="text-muted">Try adjusting your filters or search query.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Catalog page navigation" class="mt-5 mb-4">
+        <ul class="pagination justify-content-center shadow-sm">
+
+            {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link text-dark" href="?{% query_transform page=num %}">{{ num }}</a>
+                    <a class="page-link text-dark" href="?{% query_transform page=page_obj.previous_page_number %}">
+                        <i class="bi bi-chevron-left me-1"></i>Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted"><i class="bi bi-chevron-left me-1"></i>Previous</span>
                 </li>
             {% endif %}
-        {% endfor %}
 
-        {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link text-dark" href="?{% query_transform page=page_obj.next_page_number %}">
-                    Next<i class="bi bi-chevron-right ms-1"></i>
-                </a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link text-muted">Next<i class="bi bi-chevron-right ms-1"></i></span>
-            </li>
-        {% endif %}
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-dark border-dark">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link text-dark" href="?{% query_transform page=num %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
 
-    </ul>
-</nav>
-{% endif %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link text-dark" href="?{% query_transform page=page_obj.next_page_number %}">
+                        Next<i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted">Next<i class="bi bi-chevron-right ms-1"></i></span>
+                </li>
+            {% endif %}
 
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
 {% endblock %}

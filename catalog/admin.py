@@ -23,11 +23,11 @@ class DesignImageInline(admin.TabularInline):
 
 @admin.register(Design)
 class DesignAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'price', 'is_featured', 'created_at')
+    list_display = ('title', 'category', 'price', 'discount_percentage', 'is_featured', 'created_at')
     list_filter = ('category', 'is_featured', 'created_at')
     search_fields = ('title', 'description')
     prepopulated_fields = {'slug': ('title',)}
-    list_editable = ('price', 'is_featured')
+    list_editable = ('price', 'discount_percentage', 'is_featured')
 
     # 3. Attach the image uploader directly to the Design edit page
     inlines = [DesignImageInline]

@@ -36,20 +36,32 @@ class AddToCartView(LoginRequiredMixin, View):
         size = request.POST.get('size', 'L')
 
         # --- DYNAMIC PRICING LOGIC ---
-        final_price = design.price
+        base_price = design.price
+        upcharge = Decimal('0.00')
 
         # Garment Style Upcharge
         if garment_type == 'Hoodie':
-            final_price += Decimal('20.00')
+            upcharge += Decimal('20.00')
         elif garment_type == 'Crewneck Sweatshirt':
-            final_price += Decimal('15.00')
+            upcharge += Decimal('15.00')
 
-        # Size Upcharge (Stacks on top of the style upcharge)
+        # Size Upcharge
         if size == '2XL':
-            final_price += Decimal('2.00')
+            upcharge += Decimal('2.00')
         elif size == '3XL':
-            final_price += Decimal('4.00')
+            upcharge += Decimal('4.00')
 
+        # Total before sale
+        total_price = base_price + upcharge
+
+        # Apply discount
+        if design.discount_percentage > 0:
+            multiplier = Decimal(100 - design.discount_percentage) / Decimal('100.00')
+            final_price = round(total_price * multiplier, 2)
+        else:
+            final_price = total_price
+
+        # --- SAVE TO CART ---
         order_item, item_created = OrderItem.objects.get_or_create(
             order=order,
             design=design,

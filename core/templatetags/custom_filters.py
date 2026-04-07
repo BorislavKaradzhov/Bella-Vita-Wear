@@ -2,6 +2,26 @@ from django import template
 
 register = template.Library()
 
+# ==========================================
+# CUSTOM FILTER (Used to apply discounts to discounted designs))
+# ==========================================
+@register.filter(name='apply_discount')
+def apply_discount(price, percentage):
+    """
+    Applies a percentage discount to a price.
+    Usage in template: {{ design.price|apply_discount:design.discount_percentage }}
+    """
+    try:
+        original_price = float(price)
+        discount_amount = float(percentage)
+
+        # Calculate the new price
+        multiplier = (100 - discount_amount) / 100.0
+        new_price = original_price * multiplier
+
+        return f"{new_price:.2f}"
+    except (ValueError, TypeError):
+        return price
 
 # ==========================================
 # CUSTOM FILTER (Used with a pipe: |currency)

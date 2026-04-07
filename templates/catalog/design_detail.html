@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load custom_filters %}
+
 {% block title %}{{ design.title }} | Bella Vita Wear{% endblock %}
 
 {% block content %}
@@ -81,9 +83,30 @@
             </h1>
             <p class="text-muted mb-4"><span class="badge bg-secondary">{{ design.category.name }}</span></p>
 
-            <h3 class="text-primary fw-bold mb-4" id="dynamicPrice" data-base-price="{{ design.price }}">
-                ${{ design.price }}
-            </h3>
+           <div class="mb-4">
+                {% if design.discount_percentage > 0 %}
+                    <span class="text-muted text-decoration-line-through fs-5 me-2" id="original-price-display">
+                        ${{ design.price }}
+                    </span>
+
+                    <span class="text-danger fw-bold display-6" id="final-price-display"
+                          data-base-price="{{ design.price }}"
+                          data-discount="{{ design.discount_percentage }}">
+                        ${{ design.price|apply_discount:design.discount_percentage }}
+                    </span>
+
+                    <span class="badge bg-danger align-middle ms-2 mb-2">
+                        Save {{ design.discount_percentage }}%
+                    </span>
+
+                {% else %}
+                    <span class="text-primary fw-bold display-6" id="final-price-display"
+                          data-base-price="{{ design.price }}"
+                          data-discount="0">
+                        ${{ design.price }}
+                    </span>
+                {% endif %}
+            </div>
 
             <p class="lead mb-4">{{ design.description }}</p>
 
@@ -141,8 +164,8 @@
                             <i class="bi bi-cart-plus me-2"></i> Add to Cart
                         </button>
                     {% else %}
-                        <a href="{% url 'register' %}" class="btn btn-outline-dark btn-lg w-100 py-3 text-uppercase fw-bold">
-                            Sign up to buy
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-lg w-100 py-3 text-uppercase fw-bold">
+                            Log in to buy
                         </a>
                     {% endif %}
                 </div>
@@ -259,40 +282,51 @@
         // 1. Grab the HTML elements
         const sizeDropdown = document.getElementById('size');
         const typeDropdown = document.getElementById('garment_type');
-        const priceDisplay = document.getElementById('dynamicPrice');
+        const priceDisplay = document.getElementById('final-price-display');
+        const originalPriceDisplay = document.getElementById('original-price-display');
 
-        // 2. Get the base price safely
+        // 2. Safely get the base price and discount from the HTML data attributes
         const basePrice = parseFloat(priceDisplay.getAttribute('data-base-price'));
+        const discountPercentage = parseFloat(priceDisplay.getAttribute('data-discount'));
 
-        // 3. Create a single function that calculates the total
+        // 3. The Calculator Function
         function calculateLivePrice() {
-            let currentPrice = basePrice;
-            const selectedSize = sizeDropdown.value;
-            const selectedType = typeDropdown.value;
+            let upcharge = 0;
+            const selectedSize = sizeDropdown ? sizeDropdown.value : '';
+            const selectedType = typeDropdown ? typeDropdown.value : '';
 
             // --- Style Upcharge ---
-            if (selectedType === 'Hoodie') {
-                currentPrice += 20.00;
-            } else if (selectedType === 'Crewneck Sweatshirt') {
-                currentPrice += 15.00;
-            }
+            if (selectedType === 'Hoodie') upcharge += 20.00;
+            else if (selectedType === 'Crewneck Sweatshirt') upcharge += 15.00;
 
             // --- Size Upcharge ---
-            if (selectedSize === '2XL') {
-                currentPrice += 2.00;
-            } else if (selectedSize === '3XL') {
-                currentPrice += 4.00;
+            if (selectedSize === '2XL') upcharge += 2.00;
+            else if (selectedSize === '3XL') upcharge += 4.00;
+
+            // 4. Calculate Totals
+            let currentTotal = basePrice + upcharge;
+            let originalTotal = currentTotal; // Save the pre-sale number
+
+            // 5. Apply Discount (if active)
+            if (discountPercentage > 0) {
+                const multiplier = (100 - discountPercentage) / 100.0;
+                currentTotal = currentTotal * multiplier;
+
+                // Update the greyed-out original price on the screen
+                if (originalPriceDisplay) {
+                    originalPriceDisplay.textContent = '$' + originalTotal.toFixed(2);
+                }
             }
 
-            // Update the text on the screen
-            priceDisplay.textContent = '$' + currentPrice.toFixed(2);
+            // 6. Update the main text on the screen
+            priceDisplay.textContent = '$' + currentTotal.toFixed(2);
         }
 
-        // 4. Listen for changes on BOTH dropdowns
-        sizeDropdown.addEventListener('change', calculateLivePrice);
-        typeDropdown.addEventListener('change', calculateLivePrice);
+        // Listeners
+        if(sizeDropdown) sizeDropdown.addEventListener('change', calculateLivePrice);
+        if(typeDropdown) typeDropdown.addEventListener('change', calculateLivePrice);
 
-        // 5. Run it once on page load to ensure the price is perfectly accurate immediately
+        // Run once on load
         calculateLivePrice();
     });
 </script>

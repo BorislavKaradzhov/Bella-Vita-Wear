@@ -45,7 +45,18 @@ class DesignListView(SortableDesignMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        # Check if the user clicked the "On Sale" filter
+        if self.request.GET.get('on_sale') == 'true':
+            queryset = queryset.filter(discount_percentage__gt=0)
+
         return self.get_sorted_queryset(queryset)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass the current filter state back to the template so the checkbox stays checked
+        context['is_on_sale'] = self.request.GET.get('on_sale') == 'true'
+
+        return context
 
 class CategoryDesignListView(SortableDesignMixin, ListView):
     model = Design

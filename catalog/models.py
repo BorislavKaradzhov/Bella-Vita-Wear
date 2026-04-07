@@ -55,6 +55,11 @@ class Design(models.Model):
         validators=[MinValueValidator(1.00, message="The price must be at least $1.00.")]
     )
 
+    discount_percentage = models.PositiveIntegerField(
+        default=0,
+        help_text="Enter a discount percentage from 0 to 100. Leave as 0 for no discount."
+    )
+
     # We keep the main image for the catalog grid
     image = models.ImageField(upload_to='designs/', blank=False, null=False)
 
@@ -65,6 +70,14 @@ class Design(models.Model):
     available_types = models.ManyToManyField(GarmentType, related_name='designs')
     available_sizes = models.ManyToManyField(Size, related_name='designs')
     available_colors = models.ManyToManyField(Color, related_name='designs')
+
+    @property
+    def sale_price(self):
+        """Calculates the sale price dynamically."""
+        if self.discount_percentage > 0:
+            multiplier = (100 - self.discount_percentage) / 100.0
+            return round(float(self.price) * multiplier, 2)
+        return float(self.price)
 
     def save(self, *args, **kwargs):
         if not self.slug:
